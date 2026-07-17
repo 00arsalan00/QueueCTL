@@ -43,6 +43,12 @@ In this phase, we are building the **Source of Truth** for the entire system. Be
 
 In this phase, we move from Storage to Action. We are building the brain that knows how to execute shell commands and the management system that runs multiple workers in parallel
 
+## Phase 3: Retry Logic & Exponential Backoff
+
+In this phase, we add "Fault Tolerance" to our system. We define how the system reacts when things go wrong. Instead of just marking a job as "Failed" and giving up, we implement a smart "Try Again" strategy.
+
+
+
 
 
 
