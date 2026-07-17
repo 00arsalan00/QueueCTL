@@ -35,4 +35,14 @@ queuectl worker start --count 3
 queuectl status
 ```
 
+## Phase 1: The Domain & Persistence Layer
+
+In this phase, we are building the **Source of Truth** for the entire system. Before we can run jobs, we must define exactly what a "Job" is and how it is saved.
+
+## Phase 2: The Execution Engine
+
+In this phase, we move from Storage to Action. We are building the brain that knows how to execute shell commands and the management system that runs multiple workers in parallel
+
+
+
 
