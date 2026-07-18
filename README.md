@@ -48,6 +48,10 @@ In this phase, we move from Storage to Action. We are building the brain that kn
 In this phase, we add "Fault Tolerance" to our system. We define how the system reacts when things go wrong. Instead of just marking a job as "Failed" and giving up, we implement a smart "Try Again" strategy.
 
 
+## Phase 4: The Interface (CLI Layer with Spring Shell)
+
+In this phase, we build the **Command Center**. This is where the user finally interacts with all the logic we've built in Phases 1, 2, and 3. We are turning a background engine into a usable tool.
+
 
 
 

@@ -4,7 +4,6 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
-import java.util.UUID;
 
 @Entity
 @Table(name = "jobs")
@@ -15,8 +14,7 @@ import java.util.UUID;
 @Builder
 public class Job {
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID id;
+    private String id;
 
     @Column(nullable = false)
     private String command;
@@ -49,13 +47,15 @@ public class Job {
     protected void onCreate() {
         createdAt = LocalDateTime.now();
         updatedAt = LocalDateTime.now();
-        if(runAt == null) runAt = createdAt;
+        if (runAt == null)
+            runAt = createdAt;
+        if (id == null)
+            id = java.util.UUID.randomUUID().toString();
     }
 
     @PreUpdate
     protected void onUpdate() {
         updatedAt = LocalDateTime.now();
     }
-
 
 }

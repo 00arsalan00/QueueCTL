@@ -19,4 +19,6 @@ public interface JobRepository extends JpaRepository<Job, String> {
     );
 
     List<Job> findByStateAndUpdatedAtBefore(JobState jobState, LocalDateTime threshold);
+
+    List<Job> findByState(JobState state);
 }

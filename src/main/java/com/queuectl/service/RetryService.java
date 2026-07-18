@@ -1,19 +1,17 @@
 package com.queuectl.service;
 
-import org.springframework.beans.factory.annotation.Value;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 
 @Service
+@RequiredArgsConstructor
 public class RetryService {
 
-    @Value("${queue.retry.backoff-base:2}")
-    private int backoffBase;
+    private final ConfigurationService configurationService;
 
     public LocalDateTime calculateNextRunTime(int attempts) {
-        long delaySeconds = (long) Math.pow(backoffBase, attempts);
+        long delaySeconds = (long) Math.pow(configurationService.getBackoffBase(), attempts);
         return LocalDateTime.now().plusSeconds(delaySeconds);
     }
-
-
 }
