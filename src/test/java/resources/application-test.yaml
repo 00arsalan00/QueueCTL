@@ -1,0 +1,28 @@
+server:
+  port: 0
+
+spring:
+  application:
+    name: queuectl-test
+
+  datasource:
+    url: jdbc:sqlite:test-queuectl.db
+    driver-class-name: org.xerial.sqlite.JDBC
+
+  jpa:
+    database-platform: org.hibernate.community.dialect.SQLiteDialect
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+
+  shell:
+    interactive:
+      enabled: false
+
+queue:
+  defaults:
+    max-retries: 3
+    backoff-base: 1
+    timeout-seconds: 10
+  polling:
+    interval-ms: 200
