@@ -7,7 +7,7 @@ spring:
 
   datasource:
     url: jdbc:sqlite:queuectl.db
-    driver-class-name: org.xerial.sqlite.JDBC
+    driver-class-name: org.sqlite.JDBC
 
   jpa:
     database-platform: org.hibernate.community.dialect.SQLiteDialect

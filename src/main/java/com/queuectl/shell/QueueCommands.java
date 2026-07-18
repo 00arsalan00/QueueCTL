@@ -22,7 +22,7 @@ public class QueueCommands {
 
     private final JobRepository jobRepository;
     private final WorkerService workerService;
-    private final ObjectMapper objectMapper;
+    private final ObjectMapper objectMapper = new ObjectMapper();
     private final com.queuectl.service.ConfigurationService configurationService;
 
     @ShellMethod(key = "enqueue", value = "Add a new job to the queue using JSON")

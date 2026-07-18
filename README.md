@@ -121,7 +121,7 @@ stats
 ---
 
 ## Web Dashboard (Bonus)
-A REST dashboard endpoint is hosted on port `8080` while the application runs:
+A REST dashboard endpoint is hosted on port `8086` while the application runs:
 - Endpoint: `http://localhost:8086/jobs`
 - Resolves: Live JSON listing of all jobs, their durations, configurations, execution counts, and logged output results.
 
