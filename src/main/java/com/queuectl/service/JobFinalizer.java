@@ -37,7 +37,7 @@ public class JobFinalizer {
 
         job.setAttempts(job.getAttempts() + 1);
 
-        if (job.getAttempts() < job.getMaxRetries()) {
+        if (job.getAttempts() <= job.getMaxRetries()) {
             job.setState(JobState.PENDING);
             job.setRunAt(retryService.calculateNextRunTime(job.getAttempts()));
             log.warn("Job {} failed. Retrying at {}", job.getId(), job.getRunAt());

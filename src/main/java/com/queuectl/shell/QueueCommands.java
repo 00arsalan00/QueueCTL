@@ -30,13 +30,17 @@ public class QueueCommands {
         try {
             EnqueueRequest req = objectMapper.readValue(json, EnqueueRequest.class);
 
+            int priority = req.getPriority() != null ? req.getPriority() : 0;
+            int maxRetries = req.getMaxRetries() != null ? req.getMaxRetries() : configurationService.getMaxRetries();
+            int timeout = req.getTimeout() != null ? req.getTimeout() : configurationService.getTimeoutSeconds();
+
             Job job = Job.builder()
                     .id(req.getId())
                     .command(req.getCommand())
                     .state(JobState.PENDING)
-                    .priority(req.getPriority())
-                    .maxRetries(req.getMaxRetries())
-                    .timeout(req.getTimeout())
+                    .priority(priority)
+                    .maxRetries(maxRetries)
+                    .timeout(timeout)
                     .attempts(0)
                     .runAt(LocalDateTime.now())
                     .build();
@@ -96,16 +100,68 @@ public class QueueCommands {
                 .collect(Collectors.joining("\n"));
     }
 
-    @ShellMethod(key = "dlq retry", value = "Retry a job from the Dead Letter Queue")
-    public String dlqRetry(String jobId) {
+    @ShellMethod(key = "dlq list", value = "List all dead letter queue jobs")
+    public String dlqList() {
+        List<Job> deadJobs = jobRepository.findByState(JobState.DEAD);
+        if (deadJobs.isEmpty()) {
+            return "DLQ is empty.";
+        }
+        return deadJobs.stream()
+                .map(j -> String.format("ID: %s | Command: %s | Attempts: %d | Updated: %s",
+                        j.getId(), j.getCommand(), j.getAttempts(), j.getUpdatedAt()))
+                .collect(Collectors.joining("\n"));
+    }
+
+    @ShellMethod(key = "dlq retry", value = "Retry one or all dead letter queue jobs")
+    public String dlqRetry(
+            @ShellOption(defaultValue = org.springframework.shell.standard.ShellOption.NULL) String jobId) {
+        if (jobId == null || jobId.trim().isEmpty()) {
+            List<Job> deadJobs = jobRepository.findByState(JobState.DEAD);
+            if (deadJobs.isEmpty()) {
+                return "No dead jobs found in DLQ.";
+            }
+            for (Job job : deadJobs) {
+                job.setState(JobState.PENDING);
+                job.setAttempts(0);
+                job.setRunAt(LocalDateTime.now());
+                jobRepository.save(job);
+            }
+            return "Moved " + deadJobs.size() + " dead jobs back to PENDING.";
+        }
+
         return jobRepository.findById(jobId).map(job -> {
-            if (job.getState() != JobState.DEAD)
+            if (job.getState() != JobState.DEAD) {
                 return "Job is not in DLQ.";
+            }
             job.setState(JobState.PENDING);
             job.setAttempts(0);
             job.setRunAt(LocalDateTime.now());
             jobRepository.save(job);
             return "Job " + jobId + " moved back to PENDING.";
-        }).orElse("Job not found.");
+        }).orElse("Job not found: " + jobId);
+    }
+
+    @ShellMethod(key = "stats", value = "Show execution statistics and metrics")
+    public String stats() {
+        List<Job> allJobs = jobRepository.findAll();
+        long total = allJobs.size();
+        long completed = allJobs.stream().filter(j -> j.getState() == JobState.COMPLETED).count();
+        long failedDead = allJobs.stream().filter(j -> j.getState() == JobState.DEAD).count();
+
+        double successRatio = total == 0 ? 0.0 : (double) completed / total * 100.0;
+
+        double avgExecutionTime = allJobs.stream()
+                .filter(j -> j.getExecutionTimeMillis() != null)
+                .mapToLong(Job::getExecutionTimeMillis)
+                .average()
+                .orElse(0.0);
+
+        return String.format("--- Queue Statistics ---\n" +
+                "Total Jobs: %d\n" +
+                "Completed: %d\n" +
+                "Dead (DLQ): %d\n" +
+                "Success Ratio: %.2f%%\n" +
+                "Average Execution Time: %.2f ms",
+                total, completed, failedDead, successRatio, avgExecutionTime);
     }
 }
